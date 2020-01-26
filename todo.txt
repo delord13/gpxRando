@@ -1,0 +1,15 @@
+====
+TODO
+====
+
+	CONFIG.INC.PHP
+	==============
+		un fichier de config générique avec clé Géoportail à ajouter
+		fichiers spécifiques pour chaque hébergement
+		=> ces fichiers spécifiques doivent être ignorés par GIT
+		PB : pas d'autoconf pour config générique
+		
+	GPX2TDM
+	=======
+		trace lissée non sauvegardée
+		trace avec altitudes recalculées : pour IBP Index et pour enregistrement GPX
