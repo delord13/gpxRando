@@ -102,11 +102,12 @@ require 'inc/common.inc.php';
 	}
 ?>
 
+		<p style="clear: both;">
+		gpxRando est un logiciel libre sous licence <a href="https://cecill.info/" target="_blank">CeCILL</a> disponible sur <a href="https://github.com/delord13/gpxRando" target="_blank">gitHub</a>. Des questions, des critiques, des suggestions ? Ecrivez à : gpx2tdm&#8249;arobase&#8250;free.fr <br>
+		<span style="font-style: italic;"> Pour la consultation de ce site, il est conseillé d'utiliser le navigateur <a href="http://www.mozilla.org/fr/firefox/" target="_blank">Mozilla Firefox</a>.</span>
+		</p>
+
 		<hr style="clear: both;width: 100%; height: 2px;">
-		<form action="" method="POST" target="_BLANK">
-		Pour la consultation de ce site, il est conseillé d'utiliser le navigateur <a href="http://www.mozilla.org/fr/firefox/">Mozilla Firefox</a>.
-		En savoir plus sur <b>gpxRando</b> ? Des questions, des critiques, des suggestions ? <input type="submit" name="bouton" value="c'est ici !" onClick="this.form.action='http://gpx2tdm.free.fr/spip/';">
-		</form>
 		
 	<h2>Carte IGN API Géoportail</h2>
 	<div style="margin-left: 3%; width: 75%;  float: left;">
@@ -156,7 +157,7 @@ require 'inc/common.inc.php';
 		</p>
 	</div>
 	<div style="margin-left: 78%; width: 22%; text-align: center;">
-		<br><br><br>
+		<br>
       <form action="https://www.visugpx.com/editgpx/" method="get" target="_blank">
          <button style=" font-size: medium; width: 190px;" type="submit">VisuGpx</button>
       </form>
