@@ -285,11 +285,6 @@ else {
 			$_SESSION['nomGpx'] = $_FILES['fichierGpx']['name'];
 			$fichierGpx = $_FILES['fichierGpx']['tmp_name'];
 			
-			// calcul IbpIndex
-			if (AU_MOINS_56) {
-				$ibpIndex = indiceIbpIndex($_FILES['fichierGpx']['name'], $_FILES['fichierGpx']['tmp_name']);
-			}
-			
 			if  ($_FILES['fichierWpt']['size']!=0) {
 				$fichierWpt = $_FILES['fichierWpt']['tmp_name'];
 			}
@@ -337,7 +332,7 @@ else {
 		$_SESSION['fichePresentation'] = "";
 		$_SESSION['ficheNiveau'] = "";
 
-		if (IBP) $_SESSION['ficheIbpIndex'] = $ibpIndex;
+//		if (IBP) $_SESSION['ficheIbpIndex'] = $ibpIndex;
 		
 
 
@@ -637,6 +632,29 @@ else {
 
 		// trie le tableau selon la clé
 		ksort($_SESSION['pdp']);
+		
+		
+		// calcul IbpIndex et initialisation de $_SESSION['ficheIbpIndex']
+		if (AU_MOINS_56) {
+			// on appelle IBPIndex avec un gpx où les altitude ont été éventellement recalculées
+			// construction du fichier gpx
+			$xml = construireTrk();
+			// écriture du fichier gpx
+			$nomFichierTemp = mt_rand(0,1000000).".gpx";
+			$fichierCheminComplet = realpath(".")."/tmp/".$nomFichierTemp;
+			$fichierCheminWeb = "tmp/".$nomFichierTemp;
+			// création du fichier sur le serveur
+			$leFichier = fopen($fichierCheminWeb, "x+b");
+			fwrite($leFichier,$xml);
+			fclose($leFichier);
+			// calcul de l'index
+			$ibpIndex = indiceIbpIndex($nomFichierTemp, $fichierCheminWeb);
+			$_SESSION['ficheIbpIndex'] = $ibpIndex;
+			// suppression du fichier gpx
+			unlink($fichierCheminWeb);
+		}
+			
+
 
 		// initialisation denivAdd, tempsAdd, pause
 		foreach($_SESSION['pdp'] as $i =>$pdp) {
@@ -651,6 +669,8 @@ else {
 		$_SESSION['nbMaxTrkpt'] = 1000000;
 		$_SESSION['distanceLissage'] = DISTANCELISSAGE_DEF;
 		$_SESSION['seuil'] = SEUIL_DEF;
+		
+		
 	}
 	// fin initialiserTdm()
 	////////////////////////////////////////////////////////////////////////////////
