@@ -5,7 +5,7 @@ Copyright Michel Delord 12/04/2012 logiciel libre sous licence Cecill
 
 http://gpx2tdm.free.fr/CeCILL/
 
-Contributeurs : Michel Delord, Jean-Paul Fontaine, Jean Gullo, Alfeo Lotto, Jean-Claude Marie
+Contributeurs : Michel Delord, Joël Dufour, Jean-Paul Fontaine, Jean Gullo, Alfeo Lotto, Jean-Claude Marie
  
 
 L'application permet, à partir d'un fichier gpx contenant une trace et des waypoints, de construire:
