@@ -27,7 +27,6 @@ et les API :
 Le paramétrage de l'application se fait en modifiant le fichier inc/config.inc.php_MODELE que l'on doit renommer en config.inc.php après modification.
 
 NB : 
-
 	* l'affichage des cartes topographiques IGN nécessite une clé Géoportail que l'on peut obtenir en créant un compte à l'adresse : http://professionnels.ign.fr/
 	* le calcul de l'indice IBP nécessite un clé que l'on peut obtenir à l'adresse : https://openrouteservice.org/
 	* le calcul de l'itinéraire routier pour atteindre le point de départ de la randonnée (en option) nécessite 2 clés que l'on peut obtenir à l'adresse : https://openrouteservice.org/
