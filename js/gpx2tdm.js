@@ -25,7 +25,12 @@
 			cursorModifyEntirePage('wait');
 			// appel de openrouteservice.php
 			var request = new XMLHttpRequest();
-			var coord = document.getElementById("ficheItiDepartLon").value+","+document.getElementById("ficheItiDepartLat").value+"%7C"+document.getElementById("ficheItiArriveeLon").value+","+document.getElementById("ficheItiArriveeLat").value;
+//			var coord = document.getElementById("ficheItiDepartLon").value+","+document.getElementById("ficheItiDepartLat").value+"%7C"+document.getElementById("ficheItiArriveeLon").value+","+document.getElementById("ficheItiArriveeLat").value;
+			
+			var coord = "["+document.getElementById("ficheItiDepartLon").value+","+document.getElementById("ficheItiDepartLat").value+"],["+document.getElementById("ficheItiArriveeLon").value+","+document.getElementById("ficheItiArriveeLat").value+
+			"]";
+
+			
 			var url = 'util/openrouteservice.php?coord='+coord;
 
 			request.open('GET', url, true);

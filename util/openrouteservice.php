@@ -18,15 +18,25 @@ require '../inc/common.inc.php';
 		else $cle = CLE_OPENROUTE_2;
 
 		$ch = curl_init();
-		$opt = "https://api.openrouteservice.org/directions?api_key=$cle&coordinates=$coord&format=geojson&profile=driving-car&language=fr&geometry=true&instructions=true&roundabout_exits=true$option";
 
-		curl_setopt($ch, CURLOPT_URL,$opt);
+		curl_setopt($ch, CURLOPT_URL, "https://api.openrouteservice.org/v2/directions/driving-car/geojson");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 		curl_setopt($ch, CURLOPT_HEADER, FALSE);
 
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-		"Accept: application/json; charset=utf-8"
-		));
+		curl_setopt($ch, CURLOPT_POST, TRUE);
+		/*
+		curl_setopt($ch, CURLOPT_POSTFIELDS, '{"coordinates":[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]}');
+		*/
+		$postfields = '{"coordinates":['.$coord.'],"geometry_simplify":"true","instructions_format":"text","language":"fr","units":"m","geometry":"true"}';
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
+
+		$httpheader = array(  
+			"Accept: application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8",
+			"Authorization: ".$cle,
+			"Content-Type: application/json; charset=utf-8"
+		);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $httpheader);
+
 		$reponse = curl_exec($ch);
 		curl_close($ch);
 
@@ -34,13 +44,14 @@ require '../inc/common.inc.php';
 		if (substr($reponse,0,8)=="{\"error\"") {
 			return FALSE;
 		}
+
 		
 		$json = json_decode($reponse, true); // true=> assoc default false=> object
-		$km = $json['features'][0]['properties']['summary'][0]['distance']/1000;
+		$km = $json['features'][0]['properties']['summary']['distance']/1000;
 		$openRoute['km'] = round($km); 
 
 		// temps
-		$openRoute['temps'] = (float)$json['features'][0]['properties']['summary'][0]['duration'];
+		$openRoute['temps'] = (float)$json['features'][0]['properties']['summary']['duration'];
 		$duree = $openRoute['temps'];
 		$h = floor($duree/3600);
 		$m = round(($duree%3600)/60);
@@ -145,8 +156,7 @@ require '../inc/common.inc.php';
 		// modeVisualiser portrait ou paysage
 		// <bounds minlat="43.227340653823525" minlon="4.990639835386869" maxlat="43.50266702851654" maxlon="5.504798453408445"/>
 		
-//		$bbox = $json->{'features'}[0]->{'properties'}->{'bbox'};
-		$bbox = $json['features'][0]['properties']['bbox'];
+		$bbox = $json['features'][0]['bbox'];
 		$minlat = (float)$bbox[1]; //   $gpxRte->rte->extensions->bounds['minlat'];
 		$minlon = (float)$bbox[0]; //   $gpxRte->rte->extensions->bounds['minlon'];
 		$maxlat = (float)$bbox[3]; //   $gpxRte->rte->extensions->bounds['maxlat'];
@@ -166,7 +176,7 @@ require '../inc/common.inc.php';
 	$coord = $_GET['coord'];
 	// sans péage
 	$openRouteSansPeage = openRouteService($coord,FALSE);
-	
+
 	// détection d'une erreur openrouteservice
 	if ($openRouteSansPeage['temps']===FALSE) $reponse = FALSE;
 	else { // pas d'erreur openroute service sans péage
