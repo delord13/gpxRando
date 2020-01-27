@@ -17,17 +17,17 @@ L'application permet, à partir d'un fichier gpx contenant une trace et des wayp
 L'application est écrite en PHP.
 
 Elle utilise les bibliothèques :
-	* Leaflet avec les plugins leaflet-kml et Leaflet.MetricGrid
-	* l'extension Géoportail pour Leaflet
-	* jQuery
+* Leaflet avec les plugins leaflet-kml et Leaflet.MetricGrid
+* l'extension Géoportail pour Leaflet
+* jQuery
 et les API :
-	* OpenRoute Service : pour le calcul des itinéraires routiers (en option) : https://www.ibpindex.com/index.php/fr/ibp-services-fr/services
-	* IBP Index pour le calcul de l'indice IBP : https://openrouteservice.org/
+* OpenRoute Service : pour le calcul des itinéraires routiers (en option) : https://www.ibpindex.com/index.php/fr/ibp-services-fr/services
+* IBP Index pour le calcul de l'indice IBP : https://openrouteservice.org/
 	
 Le paramétrage de l'application se fait en modifiant le fichier inc/config.inc.php_MODELE que l'on doit renommer en config.inc.php après modification.
 
 NB : 
-	* l'affichage des cartes topographiques IGN nécessite une clé Géoportail que l'on peut obtenir en créant un compte à l'adresse : http://professionnels.ign.fr/
-	* le calcul de l'indice IBP nécessite un clé que l'on peut obtenir à l'adresse : https://openrouteservice.org/
-	* le calcul de l'itinéraire routier pour atteindre le point de départ de la randonnée (en option) nécessite 2 clés que l'on peut obtenir à l'adresse : https://openrouteservice.org/
+* l'affichage des cartes topographiques IGN nécessite une clé Géoportail que l'on peut obtenir en créant un compte à l'adresse : http://professionnels.ign.fr/
+* le calcul de l'indice IBP nécessite un clé que l'on peut obtenir à l'adresse : https://openrouteservice.org/
+* le calcul de l'itinéraire routier pour atteindre le point de départ de la randonnée (en option) nécessite 2 clés que l'on peut obtenir à l'adresse : https://openrouteservice.org/
 	
