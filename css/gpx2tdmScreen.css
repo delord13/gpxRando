@@ -1,0 +1,327 @@
+			html, body {
+				overflow: hidden;/*overflow:auto; */
+				margin:0px;
+				padding:0px;
+				height: 100%;  /*100 % height */
+				font-family: sans-serif;
+				font-size: small;
+				color: black;
+				cursor: default;
+			}
+/*
+			[title] {
+				color: #CCCCFF;
+				background-color: #333399;
+			}
+*/			
+
+			h1 {color : #333399;}
+			h2 {color : #333399;}
+			h3 {color : #333399;}
+			h4 {color : #333399;}
+			hr {color : #333399;}
+
+			a:link { color:#333399; text-decoration:none;  }
+			a:visited { color:#333399; text-decoration:none;  }
+			a:hover { color:#333399; text-decoration:none;  }
+			a:active { color:#333399;  text-decoration:none; }
+/*
+			a[title]:hover:after {
+  content: attr(title);
+  padding: 4px 8px;
+  color: #333;
+  position: absolute;
+  left: 0;
+  top: 100%;
+  white-space: nowrap;
+  z-index: 20px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -moz-box-shadow: 0px 0px 4px #222;
+  -webkit-box-shadow: 0px 0px 4px #222;
+  box-shadow: 0px 0px 4px #222;
+  background-image: -moz-linear-gradient(top, #eeeeee, #cccccc);
+  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #eeeeee),color-stop(1, #cccccc));
+  background-image: -webkit-linear-gradient(top, #eeeeee, #cccccc);
+  background-image: -moz-linear-gradient(top, #eeeeee, #cccccc);
+  background-image: -ms-linear-gradient(top, #eeeeee, #cccccc);
+  background-image: -o-linear-gradient(top, #eeeeee, #cccccc);
+}
+*/
+			table  {  text-align: left; width: 100%; border-width:thin; border-color:blue; empty-cells:show;border-collapse:collapse;  font-size:x-small; }
+
+			td {border-width:thin; border-color:blue; empty-cells:show;border-collapse:collapse; font-family:sans-serif; vertical-align: middle;}
+
+			input, file, textarea, select {font-family:sans-serif; font-size:x-small; background-color:#CCCCFF; border-radius: 3px; border-style: ridge;}
+
+			input.radio { background-color:transparent; border-style: none;}
+
+			#divMenu {
+				position: fixed; /* static*/
+				z-index: 10; /* Prevent certain problems with form controls */
+				overflow: auto;
+				right: 0px;
+				left: 0px;
+				top: 0px;
+				width: 100%;
+				height: 4.5em; /*5.2em 4.8em;*/ /* 82 px*/
+				padding-top: 4px;
+				padding-right: 1px;
+				padding-left: 1px;
+				padding-bottom: 1px;
+
+				font-size: small;
+				background : #CCCCFF;
+overflow : visible;
+z-index : 1000;
+			}
+a { 
+	display:block; 
+	color: #fff; 
+	text-decoration:none;
+}
+
+/* https://www.creativejuiz.fr/blog/tutoriels/menu-deroulant-css3-transition-max-height */
+#dd > li,
+#dd > li li {
+	position: relative;
+	display:inline-block;
+	width: 200px;
+	padding: 6px 15px;
+	background-color: #777;
+	background-image: linear-gradient(#aaa, #888 50%, #777 50%,#999);
+/*
+   color: #333399;
+	font-weight : 550;
+*/
+}
+#dd > li li { background: transparent none; }
+#dd > li li a { color: #444; }
+#dd > li li:hover { background:#eee; }
+#dd > li:first-child {
+	border-right: 1px solid #777;
+	border-radius: 8px 0 0 8px;
+}
+#dd>li + li {
+	border-left: 1px solid #aaa;
+	border-right: 1px solid #777;
+}
+#dd>li:last-child {
+	border-right:0;
+	border-left: 1px solid #aaa;
+	border-radius: 0 8px 8px 0 ;
+}
+#dd ul {
+	position: absolute;
+	top: 2em; left:0;
+	max-height:0em;	
+	margin:0; padding:0;
+	background-color:#ddd;
+	background-image: linear-gradient(#fff,#ddd);
+	overflow:hidden;
+	transition: 1s max-height 0.3s;
+	border-radius: 0 0 8px 8px;
+}
+#dd>li:hover {
+	background-color: #999;
+	background-image: linear-gradient(#ccc, #aaa 50%, #999 50%,#bbb);
+}
+#dd>li:hover ul {
+	/* need an adaptation, lower is better, but see it large ;) */
+	max-height:30em; /* 13 */
+}
+			
+			#onglets {
+				position: fixed; /* static*/
+				z-index: 10;
+/*				overflow: visible;
+*/				right: 0px;
+				left: 0px;
+				top: 4.6em; /*4.8em;*/ /* 4.8*/
+				width: 100%;
+				height: 1.6em; /* 1.5*/
+				font-size: 14px;
+				font-weight: bold;
+				color: #333399;
+				background : #CCCCFF;
+				border-bottom : thin solid #999999;
+
+			}
+			#onglets .onglet{
+				margin-left: 0.5%;
+				width: 15%;
+				height: 1.4em;
+				float: left;
+				text-align: center;
+				vertical-align: middle;
+				padding-top: 0.2em;
+				background-color:  #CCCCFF;
+				font-weight: 700;
+				cursor: pointer ;
+				border-top : thin solid #999999;
+				border-left : thin solid #999999;
+				border-right : thin solid #999999;
+				border-radius: 5px 5px 0 0;
+/*				border-bottom : thin solid #999999; */
+			}
+			#onglets .ongletActif{
+				margin-left: 0.5%;
+				width: 15%;
+				height: 1.4em; /* 1.2*/
+				float: left;
+				text-align: center;
+				vertical-align: middle;
+				padding-top: 0.2em;
+				background-color:  white;
+				font-weight: 500;
+				cursor: pointer ;
+				border-top : thin solid #999999;
+				border-left : thin solid #999999;
+				border-right : thin solid #999999;
+				border-radius: 5px 5px 0 0;
+				z-index: 12;
+			}
+			#tdm {
+				position: fixed;/*static */
+				overflow: auto;
+				right: 0px;
+				left: 0px;
+				bottom: 0px;
+				top: 7em; /* 6.2 */
+				padding: 5px;
+				padding-top: 10px;
+			}
+			#profil {
+				position: fixed;/*static */
+				overflow: auto;
+				right: 0px;
+				left: 0px;
+				bottom: 0px;
+				top: 7em; /* 82 */
+				padding: 10px;
+			}
+			#ficheRando {
+				position: fixed;/*  static*/
+				overflow: auto;
+				right: 0px;
+				left: 0px;
+				bottom: 0px;
+				top: 7em; /* 82 */
+				padding: 5px;
+			}
+			#aide {
+				position: fixed;/* static*/
+				overflow: auto;
+				right: 0px;
+				left: 0px;
+				bottom: 0px;
+				top: 7em; /* 82 */
+				padding: 5px;
+				font-size: small;
+			}
+			#profilVitesse{
+				position: fixed;
+				display: inline;
+				z-index: 10;
+				overflow: visible;
+				width:645px;
+				height:440px;
+				right: 0px;
+				left: 400px;
+				bottom: 0px;
+				/*top: 210px;*/
+				padding: 0px;
+				background-color: white;
+				border-style: solid;
+				border-width: 2px;
+				border-color: #333399;
+				font-size: x-small;
+			}
+
+
+			.tableFiche {
+				text-align: left; width: 100%;
+				border-width:thin;
+				border-color:blue;
+				empty-cells:show;
+				border-collapse:collapse;
+				font-size:small;
+			}
+			.tdFicheTitre {
+				width : 225px;
+				border-width:thin;
+				border-color:blue;
+				empty-cells:show;
+				border-collapse:collapse;
+				font-family:sans-serif;
+				font-weight: bold;
+				font-size:small;
+				vertical-align: top;
+				text-align: left;
+			}
+			.tdFicheValeur {
+				border-width:thin;
+				border-color:blue;
+				empty-cells:show;
+				border-collapse:collapse;
+				font-family:sans-serif;
+				font-size:small;
+				vertical-align: top;
+				text-align: left;
+			}
+			.normal {
+				font-size:small;
+				width : 99.5%
+			}
+			.reduit {
+				font-size:small;
+				text-align:center;
+				width : 50px;
+			}
+			.moyen {
+				font-size:small;
+				width: 150px;
+			}
+			.coordIti {
+				font-size:small;
+				text-align:right;
+				width : 120px;
+			}
+			.bCommande {
+				font-size: small;
+				width: 200px; /* 160 200 */
+			}
+			.bCommandeDemi {
+				font-size: small;
+				width: 120px; /* 135 */
+			}
+			.bCommande0 {
+				font-size: small;
+				width: 250px;  /* 230px */
+			}
+			.bCommande1 {
+				font-size: small;
+				width: 80px; /*95px */
+			}
+			.bCommande2 {
+				font-size: small;
+				width: 80px; /* 95px */
+				height: 28px;
+				margin-left: 1px;
+			}
+			.bCommande3 {
+				font-size: small;
+				width: 130px; /*115px */
+			}
+			.tdFicheControl {
+				font-size:small;
+			}
+			.tdNonSelect{
+				border-width:thin; border-color:black; empty-cells:show;border-collapse:collapse; font-family:sans-serif; vertical-align: middle;
+				background-color: #663366;
+			}
+			.tdSelect{
+				border-width:thin; border-color:black; empty-cells:show;border-collapse:collapse; font-family:sans-serif; vertical-align: middle;
+				background-color: #CC66CC;
+			}
