@@ -1632,6 +1632,7 @@ else {
 
   				<form enctype="multipart/form-data" method="post" action="<?php echo $GLOBALS['urlCarte'];?>" name="formVisualiserIti" id="formVisualiserIti"  target="_blank">
 					<input type="hidden" name="origine" value="gpx2tdm" >
+
 					<input type="hidden" name="zoom" value="11" >
 					
 					<input type="hidden" name="modeVisualiser" id="modeVisualiserIti" value="" >
@@ -2862,6 +2863,7 @@ if (OPENSERVICE_ROUTE && AU_MOINS_56 ) {
 											</tbody>
 										</table>
 <p>Les coordonnées par défaut du point de départ et du point d'arrivée de l'itinéraire routier sont respectivement les coordonnées du point de rendez-vous du club et du premier point de la trace de la randonnée. Elles peuvent être modifiées par exemple dans le cas des randonnées d'un séjour en étoile.<br>
+
 OpenRoute Service propose un itinéraire sans péage (et un intinéraire avec péage dans le cas où l'itinéraire avec péage permet de gagner du temps).</p>
 <?php
 	}

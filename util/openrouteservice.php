@@ -13,7 +13,6 @@ require '../inc/common.inc.php';
 		
 	// PB : limite de 40 requêtes par minute : pas assez pour récupérer la commune des 2 itinéraires
 		if (!$tollways) $option = ',"options":{"avoid_features":["tollways"]}';
-
 		else $option = "";
 		if ($tollways) $cle = CLE_OPENROUTE_1;
 		else $cle = CLE_OPENROUTE_2;
@@ -28,6 +27,7 @@ require '../inc/common.inc.php';
 		/*
 		curl_setopt($ch, CURLOPT_POSTFIELDS, '{"coordinates":[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]}');
 		*/
+
 		$postfields = '{"coordinates":['.$coord.'],"geometry_simplify":"true","instructions_format":"text","language":"fr","units":"m","geometry":"true"'.$option.'}';
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
 

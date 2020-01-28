@@ -15,6 +15,7 @@
 // en production : les erreurs ne sont pas affichées
 ini_set("display_errors", '0');
 
+
 $numeroVersion = "4.07"; // 28/01/2020 (v1.7: 21/07/2012)
 /*
 3.01 : 17/01/2015
@@ -318,7 +319,9 @@ $numeroVersion = "4.07"; // 28/01/2020 (v1.7: 21/07/2012)
 	// détermination du nbre de car du codeLettre du nom d'un point de passage
 	////////////////////////////////////////////////////////////////////////////////
 	function nbCarCodeLettre($ch) { // lettre maj [chiffre] : espace
-			$codeNum[0] = ord(substr($ch,0,1));
+			$codeNum[0] = ord(substr($ch,0,1));=======
+>>>>>>> 4d147fc9eecc88b6d579f6e5fd8bdce41cc3ad72
+
 			$codeNum[1] = ord(substr($ch,1,1));
 			$codeNum[2] = ord(substr($ch,2,1));
 			$codeNum[3] = ord(substr($ch,3,1));

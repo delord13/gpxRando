@@ -39,7 +39,8 @@
 				if (this.readyState === 4) {
 					json = JSON.stringify(eval('(' + this.responseText + ')')); //convert to json string
 					rep = JSON.parse(json); //convert to javascript array
-console.log (rep);
+
+					
 					if (rep['sansPeage']['itineraire']!=undefined) { // pas d'erreur'
 
 						// construction du ou des itinéraires fournis par openRoute Service

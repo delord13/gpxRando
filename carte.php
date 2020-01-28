@@ -200,6 +200,7 @@ ini_set("display_errors", 1);
          $ecartLonMetres = distance($centreLat, $maxLon, $centreLat, $minLon);
          if ($ecartLatMetres>$ecartLonMetres) $formatAuto = 'portrait';
          else  $formatAuto = 'paysage';
+
          if (isset($_POST['zoom'])) $zoom = $_POST['zoom'];
 			else $zoom = ZOOM;
       }
@@ -919,6 +920,7 @@ EOT;
 						"&TILECOL={x}",
 						{
 							minZoom : 0,
+
 							maxZoom : 18,
 							attribution : "IGN-F/Geoportail",
 							tileSize : 256, // les tuiles du Géooportail font 256x256px
