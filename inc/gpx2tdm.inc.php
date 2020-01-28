@@ -120,9 +120,6 @@ $profilVitesse = array(
 
 		$txt['analyse'] ['texte'] = "Analyser la trace";
 		$txt['analyse'] ['title'] = "propose d'afficher ou d'enregistrer une page d'analyse de la trace : distances, dénivelées et pentes entre les points de trace";
-=======
->>>>>>> 4d147fc9eecc88b6d579f6e5fd8bdce41cc3ad72
-
 		
 		// menu Fiche-Rando
 		$txt['ficheHtml'] ['texte'] = "Fiche-rando HTML";
