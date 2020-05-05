@@ -7,12 +7,9 @@
 //    Copyright Michel Delord 12/04/2012 logiciel libre sous licence Cecill
 //    http://gpx2tdm.free.fr/CeCILL/
 ////////////////////////////////////////////////////////////////////////////////
-// http://gpx2tdm.free.fr/gpx2tdm/util/visualiserGpx.php
-// reçoit par POST une chaîne xml = contenu du trk et des wpt
+// reçoit par POST une chaîne xml = contenu du trk et des wpt ou un fichier gpx par $_FILES
 // affiche la trace et les wpt sur cart IGN en utilisant l'API Geoportail
 // utilise le répertoire temp où Apache peut lire et écrire
-//var_dump($_POST);die();
-
 /*
 	version leaflet de base mais ajout de GpPluginLeaflet pour le gestionnaire de couche et les coordonnées du curseur avec altitude
 	js et css leaflet denière version
@@ -34,31 +31,30 @@
 		ajout de la couche tableau d'assemblage des cartes IGN (KML)
 	
 	ajout layers switcher geortail  après l'ajout de couches GP et de la couche trk mais avant les autres pour éviter les couches parasites (NB la couche trk génère une couche parasite qu'il faut supprimer du layer switcher)
-	avec gestion de la transparence des couches (au moins de la couche photos aériennes) (Leaflet.Control.Appearance ?)
+	avec gestion de la transparence des couches (au moins de la couche photos aériennes) (Leaflet.Control.Appearance ?)$_POST['newAction']
 	ordre des couches depuis le bas
 		IGN et OSM topo
 		photos aériennes
-		UTM
+		UTMecho("GET : ");var_dump($_GET);
 		limites administratives
 		numéros de carte IGN
 		trk
 		wpt
 		symboles
-		
-	leaflet.fullscreen
-	Leaflet.ScaleFactor
-	leaflet.mouseCoordinate géog utm ...
-
 */
+
 
 /*
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
-*/
+INUTILE $_SESSION n'est pas utilisé dans le script
+//session_start();
 
-	require 'inc/sessionsMultiplesSousAppli.inc.php';
-	//session_start();
-	
+echo("POST : ");var_dump($_POST);
+die();
+*/	
+
+//	error_reporting(E_ALL);
+//	ini_set("display_errors", 1);
+
 	require 'inc/config.inc.php';
 	require 'inc/common.inc.php';
 	
@@ -82,18 +78,26 @@ ini_set("display_errors", 1);
 	// préparation de la carte selon fichier gpx fourni ou non
 	///////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////
-	if ($_POST['origine']=="gpx2tdm" || (isset($_FILES['fichierGpx']['name']) && $_FILES['fichierGpx']['name']!="" )) {
-      // trace couche GPX
-      preparerCarteTrace();
-   
-      //points de passage en KML
-//      preparerCarteWpt($gpx);
-      
-      // symboles sur trace en KML
-//      preparerCarteSymboles($trk);
-	}
+//	var_dump($_POST); var_dump($_GET); die();
+	if (isset($_POST['origine'])) {
+		if (isset($_POST['xml']) || (isset($_FILES['fichierGpx']['name']) && $_FILES['fichierGpx']['name']!="" )) {
+			
+		
+			// trace couche GPX
+			preparerCarteTrace();
+		}
+		else {
+			preparerCarteSansFichierGpx();
+		}
+	} // fin si POST
 	else {
-      preparerCarteSansFichierGpx();
+		if (isset($_GET['fichierGpx'])) { // appel par spip IRLPT INUTILE !!!!
+			preparerCarteTrace();
+		}
+		else {
+			preparerCarteSansFichierGpx();
+			
+		}
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////
@@ -102,17 +106,17 @@ ini_set("display_errors", 1);
    function preparerCarteTrace() {
 	///////////////////////////////////////////////////////////////////////////////
       global $gpx, $trk, $nomCouche, $fichierGpxCheminWeb, $centreLat, $centreLon, $zoom, $formatAuto, $trkJs, $wptJs;
-
- 		// trace à afficher origine = gpx2tdm ou index
-		if ($_POST['origine']=="gpx2tdm") {
-			$chaineGpx = stripslashes($_POST['xml']);
-			$nomCouche = "trace";
-			// log
-			enregistrerLog ('gpxRando', 'affichage de la trace sur la carte IGN',$_SESSION['nomRando'].'.gpx');
+		if (isset($_POST['xml'])) { // pour appel hors gpxRando (bdTdm, spip...)
+			// trace à afficher origine = gpx2tdm ou index
+				$chaineGpx = stripslashes($_POST['xml']);
+				if (isset($_POST['nomCouche'])) $nomCouche = $_POST['nomCouche'];
+				else $nomCouche = "trace";
+				// log
+				enregistrerLog ('externe', 'affichage de la trace sur la carte IGN',$nomCouche.'.gpx');
 		}
-		
-		if (isset($_FILES['fichierGpx']['name'])) { 
-			if ($_FILES['fichierGpx']['name']!="") {
+			
+		else {
+			if ($_FILES['fichierGpx']['name']!="") { // pour appel par index
 				$fichierGpx = $_FILES['fichierGpx']['tmp_name'];
 				$fp = fopen($fichierGpx, "rb");
 				clearstatcache();
@@ -124,11 +128,17 @@ ini_set("display_errors", 1);
 				// log
 				enregistrerLog ('gpxRando', 'affichage de la trace sur la carte IGN',$_FILES['fichierGpx']['name']);
 			}
+			else die("C'est pas bon ça !");
 		}
+			
+
 
 		// correction XML v1.1: remplace xml version="1.1" par xml version="1.0"
 		$chaineGpx = str_replace('xml version="1.1"', 'xml version="1.0"', $chaineGpx);
 		$chaineGpx = str_replace("xml version='1.1'", "xml version='1.0'", $chaineGpx);
+		
+		// conversion éventuelle de la route en trace	
+		$chaineGpx = rte2trk($chaineGpx); // dans init.inc.php
 			
 		// enregistrer la chaine $chaineGpx un fichier gpx dans /tmp
 		$nomFichierTemp = mt_rand(0,1000000);
@@ -146,7 +156,7 @@ ini_set("display_errors", 1);
 		$retour = chmod($fichierGpxCheminComplet,intval("0777",8));
 		// préparation de la création de la couche GPX
 		$repSelf = $_SERVER['PHP_SELF'];
-		$pos = strpos($repSelf, "visualiserGpx.php");
+		$pos = strpos($repSelf, "carte.php");
 		$repSelf = substr($repSelf,0,$pos);
 		$fichierGpxCheminWeb = $repSelf."tmp/".$nomFichierTemp.".gpx";
 
@@ -497,8 +507,17 @@ EOT;
 		$fichierWptKMLCheminWeb = ""; // pas de point noms de waypoints à afficher
 		// alors on centre sur Marseilleveyre
 		//5.362453,43.217581
-		$centreLat = LAT_CENTRE;
-		$centreLon = LON_CENTRE;
+		
+		// cookies de centre de la carte ?
+		if (isset($_COOKIE['lat']) && isset($_COOKIE['lon'])) {
+			$centreLat = $_COOKIE['lat'];
+			$centreLon = $_COOKIE['lon'];
+		}
+		else {
+			$centreLat = LAT_CENTRE;
+			$centreLon = LON_CENTRE;
+		}
+
 		if (isset($_POST['zoom'])) $zoom = $_POST['zoom'];
 		else $zoom = ZOOM;
 		// log
@@ -517,8 +536,8 @@ EOT;
 			$titre = substr($_FILES['fichierGpx']['name'],0,-4);
 		}
 	// depuis gpx2tdm.php = nom du fichier gpx sans extension
-		if (isset($_SESSION['nomRando'])) {
-			$titre = $_SESSION['nomRando'];
+		if (isset($nomCouche)) {
+			$titre = $nomCouche;
 		}
       return $titre;
    }
@@ -590,6 +609,9 @@ EOT;
 				PW.close();
 			}
 		</script>
+		
+		<!-- pour enregistrer le centre de la page par cookie -->
+		<script src="js/carte.js"></script>
 		
 
 		
@@ -771,6 +793,11 @@ EOT;
 						boîtes : zoom, gestionnaire de couche, corrdonnées du curseur, échelle</li>
 					</ul>
 
+					<h2>Enregistrer les coordonnées du centre de la page</h2>
+					<p style="margin-left: 40px;">Vous pouvez enregistrer les coordonnées du centre de la page dans des cookies afin de retrouver cette position de la carte lors d'une session suivante.</p>
+					<ul>
+						<li><span style="font-weight: bold;">ALT+p</span>: enregistrer les coordonnées du centre de la page</li>
+					</ul>
 					<h2>Carroyage UTM</h2>
 					<p style="margin-left: 40px;">Le carroyage UTM kilométrique représenté par des lignes bleues est visible aux niveaux de zoom correspondant aux fonds de carte IGN au 1/25000 pour les zones 30, 31 et 32 (France métropolitaine).</p>
 					<p style="margin-left: 40px;">Les coordonées UTM des lignes se trouvent sur le bord gauche et sur le bord inférieur de la carte (en km). Entre parenthèses, on trouve à gauche la lettre correspondant à la bande et en bas le nombre correspondant à la zone.</p>
@@ -921,7 +948,7 @@ EOT;
 						{
 							minZoom : 0,
 
-							maxZoom : 18,
+							maxZoom : 20,
 							attribution : "IGN-F/Geoportail",
 							tileSize : 256, // les tuiles du Géooportail font 256x256px
 							opacity : 0.5 // 0
@@ -1281,6 +1308,11 @@ EOT;
 					});
 					map.addControl(mousePosition);
 					
+					// ajout du contrôle de recherche
+					var searchCtrl = L.geoportalControl.SearchEngine({
+					});
+					map.addControl(searchCtrl);	
+					
 					// ajout de l'échelle
 					L.control.scale({position: 'topleft', metric: true, imperial: false}).addTo(map);
 					
@@ -1410,7 +1442,17 @@ map.eachLayer(function(layer) {
 					document.getElementsByClassName('leaflet-control-container')[0].style.display='inline'
 			}
 			
-			if (alt && e.keyCode==82) { // R afficher la résolution d'impression
+			if (alt && e.keyCode==80) { // ALT=p mémorise par cookie la position du centre de la page
+				var latCentrePage = map.getCenter().lat;
+				var lonCentrePage = map.getCenter().lng;
+				createCookie('lat',latCentrePage,30); //30 jours
+				createCookie('lon',lonCentrePage,30); //30 jours
+				
+				alert("Les coordonnées du centre de la page a été enregistrées dans 2 cookies : latitude : "+latCentrePage+" ; longitude : "+lonCentrePage);
+				
+			}
+			
+			if (alt && e.keyCode==82) { //ALT R afficher la résolution d'impression
 				alt = false;
 /*
 				// source: https://www.masinamichele.it/2018/05/04/gis-the-math-to-convert-from-epsg3857-to-wgs-84/

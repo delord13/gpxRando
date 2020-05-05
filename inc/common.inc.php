@@ -16,7 +16,7 @@
 ini_set("display_errors", '0');
 
 
-$numeroVersion = "4.07"; // 28/01/2020 (v1.7: 21/07/2012)
+$numeroVersion = "4.10"; // 05/05/2020 (v1.7: 21/07/2012)
 /*
 3.01 : 17/01/2015
 	- carte : trace accompagnée de flèches rouges indiquant le ses ; 1 flèche par km ; flèche à 1 " d'arc à droite du point de référence (point rouge sur la trace); point de départ signalé par un point rouge sans flèche
@@ -172,6 +172,19 @@ $numeroVersion = "4.07"; // 28/01/2020 (v1.7: 21/07/2012)
 	- gpx2tdm : IBPIndex calculé sur le trace avec les altitudes éventuellement modifiées
 	- carte : zoom 11 pour les itinéraires routiers
 	- index : ajout de la licence et de l'adresse de courriel pour contact'
+4.08 19/03/20
+	- gpx2tdm : nettoyage du code (if successifs -> switch)
+	- carte et gpx2tdm acceptent les fichiers gpx contenant une trace ou une route
+	- les routes sont transformées en traces dans les fichiers gpx enregistrés à partir de gpx2tdm
+4.09 11/04/20
+	- index.php : message explicant le temps d'attente quand on demande le recalcul des altitudes
+	- gpx2tdm : réitération des requêtes d'alticodage en l'absence de réponse du serveur d'alticodage de l'IGN
+4.10 05/05/20
+	- js/carte.js : fonctions pour enregistrer et lire cookies
+	- carte : 
+		- ajout du contrôle "SearchEngine"
+		- ajout de la commande ALT+p pour mémoriser la postion du centre de la carte (par cookies) et la retrouver lors de l'ouverture d'une session ultérieur sans gpx
+		- todo (à la demande de Bernard Morin) : couche "pentes" ; couche zonzq protégées APB ; rétablir les altitudes dans le contrôle mouse-position (nécessite la modification des options du contrat Géoportail quand le serveur IGN sera de nouveau opérationnel)
 */
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -271,6 +284,41 @@ $numeroVersion = "4.07"; // 28/01/2020 (v1.7: 21/07/2012)
 
 	<?php
 		die();
+	}
+	
+//
+	function rte2trk($chaineGpx) {
+		$gpx = simplexml_load_string($chaineGpx);
+		
+		// s'il n'y a pas de route : ne rien faire
+		if (!isset($gpx->rte)) return $chaineGpx;
+		
+		// s'il y a une route, on transforme la route en trace
+		
+		$xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n";
+		$xml .= '<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="gpx2tdm">'."\n";
+		
+		// les waypoints 
+		foreach ($gpx->wpt as $wpt) {
+			$xml .= "\t<wpt lat=\"".$wpt['lat']."\" lon=\"".$wpt['lon']."\">\n";
+			if (isset($wpt->name)) $xml .= "\t\t<name>".htmlspecialchars($wpt->name, ENT_QUOTES)."</name>\n";
+			$xml .= "\t</wpt>\n";
+		}
+
+		// la route
+		$xml .= "\t<trk>\n";
+		if(isset($gpx->rte->name)) $xml .= "\t\t<name>".htmlspecialchars($gpx->rte->name, ENT_QUOTES)."</name>\n";
+		$xml .= "\t\t<trkseg>\n";
+		foreach ($gpx->rte->rtept as $rtept) {
+			$xml .= "\t\t\t<trkpt lat=\"".$rtept['lat']."\" lon=\"".$rtept['lon']."\">\n";
+			$xml .= "\t\t\t\t<ele>".$rtept->ele."</ele>\n";
+			$xml .= "\t\t\t</trkpt>\n";
+		}
+		$xml .= "\t\t</trkseg>\n";
+		$xml .= "\t</trk>\n";
+
+		$xml .= "</gpx>\n";
+		return $xml;
 	}
 
 // function azimut entre 2 points : formule vérifiée
@@ -494,25 +542,50 @@ if (get_magic_quotes_gpc()) {
 		$param = $lon.$lat;
 		$opt = "https://wxs.ign.fr/".CLE_GEOPORTAIL."/alti/rest/elevation.json?$param&zonly=true";
 
-		$ch = curl_init();
-		
-		curl_setopt($ch, CURLOPT_URL,$opt);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-		curl_setopt($ch, CURLOPT_HEADER, FALSE);
-		curl_setopt($ch, CURLOPT_REFERER, REFERER);
-		
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-		"Accept: application/json; charset=utf-8"
-		));
-		$reponse = curl_exec($ch);
-		curl_close($ch);
-//echo REFERER;
-//var_dump($reponse); die();
-		$tab = json_decode($reponse,TRUE);	
+		// on insiste tant qu'on n'a pas de réponse !!!
+		$reponse = FALSE;
+		while (!$reponse) {
+			$ch = curl_init();
+			
+			curl_setopt($ch, CURLOPT_URL,$opt);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+			curl_setopt($ch, CURLOPT_HEADER, FALSE);
+			curl_setopt($ch, CURLOPT_REFERER, REFERER);
+			// CURLOPT_CONNECTTIMEOUT en "
+			//		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1); // 5" d'attente maximum
+			//curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
+			//curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, 5000); // 50 1000 = 1" d'attente max
+			//curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, 250);
+			//curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, 5000); // 50 1000 = 1" d'attente max
+			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 5); // 
+			// soit 4 secondes maximum par paquet de 100 points de trace
+
+			// CURLOPT_TIMEOUT " 
+			//		curl_setopt($ch, CURLOPT_TIMEOUT, 1); // 1" d'attente maximum non unité = 10 secondes ??
+			//		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, 100); // 50 1000 = 1" d'attente max
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			"Accept: application/json; charset=utf-8"
+			));
+			$reponse = curl_exec($ch);
+
+			curl_close($ch);
+	//echo REFERER;
+		} // fin de insiste tant que pas de réponse
+
+		/////////////////////////////////////////////////////////////////
+		// Vérifie si le Service Alticodage répond
+		if ($reponse===FALSE) return FALSE; 
+		/////////////////////////////////////////////////////////////////
+		$tab = json_decode($reponse,TRUE);
+//var_dump($tab);
+//if (!is_array($tab)) echo("*$reponse*"); die;
 		foreach ($tab as $elevations) {
 			$i = $premier;
 			foreach ($elevations as $uneEle) {
 				$ele[$i] = round($uneEle);
+				// filtrage des altitudes aberrantes en particulier -99999 !
+				if ($ele[$i]>10000 || $ele[$i]<-1000) $ele[$i] = '';
 				$i++;
 			}
 		}
@@ -528,20 +601,35 @@ if (get_magic_quotes_gpc()) {
 		$n = 0;
 		$lon = "lon=";
 		$lat = "&lat=";
+$nbPaquets = 0;
 		foreach ($ptCoord AS $unPtCoord) {
 			$lon .= $unPtCoord['lon'].'|';
 			$lat .= $unPtCoord['lat'].'|';
 			$n++;
 			$i++; // rang du prochain
 			if ($i==100) { //malgré ce que dit la doc Alticodage il ne faut pas dépasser 100
+$nbPaquets++;
+$t0 = time();
 				$ele = eleGeoportail5000($lon,$lat,$ele,$premier);
+$t1 = time();
+$date = date('Y-m-d H:i:s',$t1);
+$tt = ($t1-$t0);
+				if ($ele===FALSE) die("<br>\n$date {$_SESSION['nomGpx']} : échec du service Alticodage au paquet n° $nbPaquets en $tt secondes.<br>\n");//return FALSE;
 				$i = 0;
 				$premier = $n;
 				$lon = "lon=";
 				$lat = "&lat=";
 			}
 		}
-		if ($i>0) $ele = eleGeoportail5000($lon,$lat,$ele,$premier);
+		if ($i>0) {
+$nbPaquets++;				
+$t0 = time();
+			$ele = eleGeoportail5000($lon,$lat,$ele,$premier);
+$t1 = time();
+$date = date('Y-m-d H:i:s',$t1);
+$tt = ($t1-$t0);
+			if ($ele===FALSE) die("<br>\n$date {$_SESSION['nomGpx']} : échec au paquet n° $nbPaquets en $tt secondes.<br>\n"); //return FALSE;
+		}
 		return $ele;
 	} // fin eleGeoportail
 
@@ -568,6 +656,7 @@ if (get_magic_quotes_gpc()) {
 		
 // fin correction des ele manquantes ou vides dans une chaîne Gpx
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 // date
 // fonction internationaliserDate

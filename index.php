@@ -74,6 +74,17 @@ require 'inc/common.inc.php';
 		<link rel="shortcut icon" type="image/png" href="images/gpx2tdm_ico.png" />
 </head>
 <body>
+	<div id="patience" style="position: absolute; top: 50%; right: 30%; z-index: 10001; width: 40%;  padding: 10px; background-color:#fffca2; border-width: 3px; border-color: #336699; border-style: solid; display: none; overflow: visible; font-family:sans-serif; font-size:medium; text-align: justify;">
+		<p>
+			Le temps d'attente pour l'ouverture du tableau de marche dépend du nombre de points de trace dont il faut obtenir l'altitude du Service Alticodage de l'IGN.
+		</p>
+		<p>
+			Patience !
+		</p>
+		<p>
+			Si au bout d'une dizaine de secondes vous n'avez pas obtenu le tableau de marche, c'est que le Service Alticodage de l'IGN ne répond pas ; il faudra ré-essayer plus tard.
+		</p>
+	</div>
 	<div style="float: left;">
 		<h1 style="float: left;">gpxRando : <span style="font-size: medium; font-style: italic;">de la trace gpx au tableau de marche</span>  <span style="font-size: small;" > v <?php echo($GLOBALS['numeroVersion']); ?> </span> </h1>
 	</div>
@@ -124,7 +135,7 @@ require 'inc/common.inc.php';
 			<legend>Afficher une carte imprimable A4
 			</legend>
 			<p style="display: none;"><input name="etiquette" value="etiquette" type="checkbox"> à cocher pour afficher les noms des éventuels points de passage</p>
-			<p>fichier GPX à ajouter éventuellement : <input name="fichierGpx" type="file" onChange="document.getElementById('carteAuto').style.display='inline';">
+			<p>fichier GPX (contenant une trace ou une route) à ajouter éventuellement : <input name="fichierGpx" type="file" onChange="document.getElementById('carteAuto').style.display='inline';">
 			</p>
 		</fieldset>
 	</div>
@@ -169,19 +180,19 @@ require 'inc/common.inc.php';
 
 	<h2>gpx2tdm</h2>
 	<div style="margin-left: 3%; width: 75%;  float: left;">
-		<p>Cette application permet de créer et/ou modifier un tableau de marche à partir d'un fichier gpx contenant une trace (trk) et des points de passage (wpt) décrivant une rando. Elle fournit aussi un profil altimétrique et permet de créer une fiche descriptive de la rando. Elle permet enfin d'imprimer la carte.</p>
+		<p>Cette application permet de créer et/ou modifier un tableau de marche à partir d'un fichier gpx contenant une trace (trk) ou une route (rte) et des points de passage (wpt) décrivant une rando. Elle fournit aussi un profil altimétrique et permet de créer une fiche descriptive de la rando. Elle permet enfin d'imprimer la carte.</p>
 
 			<h3>Création et édition d'un tableau de marche à partir d'un fichier gpx</h3>
 		<form  enctype="multipart/form-data" method="post" action="gpx2tdm.php" name="formTDM">
 		<fieldset>
-			<legend>&nbsp;Ouvrir un ou des fichiers gpx contenant une trace et des points de passage&nbsp;</legend>
+			<legend>&nbsp;Ouvrir un ou des fichiers gpx contenant une trace ou une route et des points de passage&nbsp;</legend>
 			<input type="hidden" name="mode" value="standard" >
 			<input type="hidden" name="newAction" value="" >
 			<table style="text-align: left; width: 100%;" border="0" cellpadding="2"
 			cellspacing="2">
 				<tbody>
 					<tr>
-						<td style="vertical-align: top;"><input name="recalculerAltitude" value="recalculerAltitude" type="checkbox" <?php if(RECALCUL_ALTITUDES) echo('checked="checked"');  ?>> à cocher si vous souhaitez que les altitudes de la trace soient recalculées à l'aide du Service Alticodage de Géoportail basé sur le Modèle Numérique de Terrain RGE Alti au pas de 5m
+						<td style="vertical-align: top;"><input name="recalculerAltitude" id="recalculerAltitude" value="recalculerAltitude" type="checkbox" <?php if(RECALCUL_ALTITUDES) echo('checked="checked"');  ?>> à cocher si vous souhaitez que les altitudes soient recalculées à l'aide du Service Alticodage de Géoportail basé sur le Modèle Numérique de Terrain RGE Alti au pas de 5m
 
                   </td>
 					</tr>
@@ -190,7 +201,7 @@ require 'inc/common.inc.php';
 						</td>
 					</tr>
 					<tr>
-						<td style="vertical-align: top;">fichier gpx à ouvrir contenant la trace 	(trk) et, éventuellement, les points de passage (wpt) : 	<input name="fichierGpx" type="file" onChange="this.form.fichierTdm.value=''; ">
+						<td style="vertical-align: top;">fichier gpx à ouvrir contenant la trace (trk) ou une route (rte) et, éventuellement, les points de passage (wpt) : 	<input name="fichierGpx" type="file" onChange="this.form.fichierTdm.value=''; ">
 						</td>
 						<td style="vertical-align: middle; text-align: left;"
 						rowspan="2">
@@ -198,7 +209,7 @@ require 'inc/common.inc.php';
 					</tr>
 					<tr>
 						<td style="vertical-align: top;">éventuellement en complément, fichier gpx à ouvrir contenant les points de passage (wpt) : <input name="fichierWpt" type="file" onChange="this.form.fichierTdm.value=''; ">
-						</td>
+						</td>inline
 					</tr>
 				</tbody>
 			</table>
@@ -251,6 +262,10 @@ require 'inc/common.inc.php';
 								alert('\''+nom+'\' n\'est pas un fichier tdm !');  
 								this.form.fichierTdm.value = '';}
 							else {
+								if (document.getElementById('recalculerAltitude').checked==true) {
+									document.getElementById('patience').style.display = 'inline';
+								} 
+								body.style.cursor = 'wait';
 								this.form.submit();
 							}
 						}

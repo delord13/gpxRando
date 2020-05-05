@@ -10,7 +10,7 @@
 		// output_add_rewrite_var('SESSION_NAME',session_name());
 
 	// contrôle de l'accès par index.php
-	if (!isset($_REQUEST['SESSION_NAME'])) die('Cette page ne peut pas être appelée directement.');
+//	if (!isset($_REQUEST['SESSION_NAME'])) die('Cette page ne peut pas être appelée directement.');
 	
 	session_name($_REQUEST['SESSION_NAME']);
 	session_start();

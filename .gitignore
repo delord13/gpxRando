@@ -1,3 +1,5 @@
 config.inc.php
 autoconf.json
 incSpecifiques
+log
+tmp

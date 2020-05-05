@@ -30,156 +30,135 @@ var_dump($_POST);
 */
 { // Main : action selon POST
 
+	// on agit suivant le POST newAction
+	if (isset($_POST['newAction'])) {
+		switch($_POST['newAction']) {
+			case "creer" :
+				$reponseRecalculerAltitude = initialiserTdm($_POST['mode']); 	// standard ou test
+				calculerTdm();
+				enregistrerLog ('gpx2tdm', 'création d\'un tdm', $_FILES['fichierGpx']['name']);
+				// test echec du recalcul des altitudes pour affichage éventuel d'une alerte
+				if (!$reponseRecalculerAltitude ) afficherTdm(FALSE); 
+				else  afficherTdm("rien");
+				break;
+			case "charger" :
+				if ($_POST['mode']=="bdTdm") {
+					$nomFichierTdm = $_POST['nomFichierTdm'];
+					$evenement = 'édition d\'un tdm depuis bdTdm';
+				}
+				else {
+					$nomFichierTdm = $_FILES['fichierTdm']['name'];
+					$evenement = 'édition d\'un tdm depuis gpxRando';
+				}
+				enregistrerLog ('gpx2tdm', $evenement, $nomFichierTdm);
+				chargerTdm($_POST['mode']); // standard ou test ou bdTdm
+				calculerTdm();//$_FILES['fichierGpx']['name']
+				afficherTdm("rien");
+				break;
+			case "visualiser" :
+				mettreAJourSession();
+				calculerTdm();
+	//			enregistrerFichier($xml);
+				switch($_POST['modeAgir']) {
+					case 'auto' :
+					afficherTdm("afficherCarteAuto");
+					break;
+					case 'portrait' :
+					afficherTdm("afficherCartePortrait");
+					break;
+					case 'paysage' :
+					afficherTdm("afficherCartePaysage");
+					break;
+				}
+				break;
+			case "enregistrer" :
+				mettreAJourSession();
+				calculerTdm();
+				enregistrerLog ('gpx2tdm', 'enregistrement d\'un tdm', $_SESSION['nomRando'].".tdm");
+				afficherTdm("envoyerTdm");
+				break;
+			case "envoyerTdm" :
+				$xml = construireTdm();
+				//enregistrerLog ('gpx2tdm', 'enregistrement d\'un tdm', $_SESSION['nomRando'].".tdm");
+				envoyerTdm($xml);
+				break;
+			case "envoyerTdmCSV" :
+				mettreAJourSession();
+				calculerTdm();
+				//enregistrerLog ('gpx2tdm', 'envoi d\'un tdm (csv)', $_SESSION['nomRando'].".tdm");
+				$csv = construireTdmCSV();
+			envoyerTdmCSV($csv);
+				break;
+			case "imprimerTdm" :
+				mettreAJourSession();
+				calculerTdm();
+				//enregistrerLog ('gpx2tdm', 'impression d\'un tdm', $_SESSION['nomRando'].".tdm");
+	//			imprimerTdm();
+				afficherTdm("imprimerTdm");
+				break;
+			case "imprimeFicheHtml" :
+				mettreAJourSession();
+				calculerTdm();
+				//enregistrerLog ('gpx2tdm', 'impression d\'une fiche rando (html)', $_SESSION['nomRando'].".tdm");
+	//			enregistrerFichier($xml);
+				afficherTdm("imprimeFicheHtml");
+				break;
+			case "imprimeFichePdf" :
+				mettreAJourSession();
+				calculerTdm();
+				//enregistrerLog ('gpx2tdm', 'impression d\'une fiche rando (pdf)', $_SESSION['nomRando'].".tdm");
+	//			enregistrerFichier($xml);
+				afficherTdm("imprimeFichePdf");
+				break;
+			case "creerTrk" :
+				mettreAJourSession();
+				calculerTdm();
+				//enregistrerLog ('gpx2tdm', 'création d\'un gpx (_wpt_trk)', $_SESSION['nomRando'].".tdm");
+				afficherTdm("envoyerTrk");
+				break;
+			case "envoyerTrk" :
+				$xml = construireTrk();
+				envoyerTrk($xml);
+				break;
+			case "creerTrkLisse" :
+				mettreAJourSession();
+				calculerTdm();
+				//enregistrerLog ('gpx2tdm', 'création d\'un gpx (_wpt_trk)', $_SESSION['nomRando'].".tdm");
+				afficherTdm("envoyerTrkLisse");
+				break;
+			case "envoyerTrkLisse" :
+				$xml = construireTrkLisse();
+				envoyerTrkLisse($xml);
+				break;
+			case "creerWpt" :
+				mettreAJourSession();
+				calculerTdm();
+				//enregistrerLog ('gpx2tdm', 'création d\'un gpx (_wpt)', $_SESSION['nomRando'].".tdm");
+				afficherTdm("envoyerWpt");
+				break;
+			case "envoyerWpt" :
+				$xml = construireWpt();
+				envoyerWpt($xml);
+				break;
+			case "analyser" :
+				$xml = construireAnalyse();
+				enregistrerLog ('gpx2tdm', 'analyse d\'une trace', $_SESSION['nomRando'].".tdm");
+				envoyerAnalyse($xml);
+				break;
+			case "recalculer" :
+				mettreAJourSession();
+				calculerTdm();
+				afficherTdm("rien");
+				break;
+			
+		} // fin switch
 
-// on agit suivant le POST newAction
-if (isset($_POST['newAction'])) {
-
-
-	if ($_POST['newAction'] == "creer") {
-		initialiserTdm($_POST['mode']); 	// standard ou test
-		calculerTdm();
-		// log
-		enregistrerLog ('gpx2tdm', 'création d\'un tdm', $_FILES['fichierGpx']['name']);
-
-		afficherTdm("rien");
+	//var_dump($_SESSION); die();
 	}
-
-	if ($_POST['newAction'] == "charger") {
-
-		// log
-		if ($_POST['mode']=="bdTdm") {
-			$nomFichierTdm = $_POST['nomFichierTdm'];
-			$evenement = 'édition d\'un tdm depuis bdTdm';
-		}
-		else {
-			$nomFichierTdm = $_FILES['fichierTdm']['name'];
-			$evenement = 'édition d\'un tdm depuis gpxRando';
-		}
-		enregistrerLog ('gpx2tdm', $evenement, $nomFichierTdm);
-      chargerTdm($_POST['mode']); // standard ou test ou bdTdm
-		calculerTdm();//$_FILES['fichierGpx']['name']
-		afficherTdm("rien");
+	else {
+		// cas de l'appel initial de l'application
+		header('Location: ../index.php');
 	}
-
-	if ($_POST['newAction'] == "visualiser") {
-		mettreAJourSession();
-		calculerTdm();
-//		enregistrerFichier($xml);
-      switch($_POST['modeAgir']) {
-         case 'auto' :
-         afficherTdm("afficherCarteAuto");
-         break;
-         case 'portrait' :
-			afficherTdm("afficherCartePortrait");
-         break;
-         case 'paysage' :
-         afficherTdm("afficherCartePaysage");
-         break;
-      }
-   }
-
-   if ($_POST['newAction'] == "enregistrer") {
-		mettreAJourSession();
-		calculerTdm();
-		// log
-		enregistrerLog ('gpx2tdm', 'enregistrement d\'un tdm', $_SESSION['nomRando'].".tdm");
-		afficherTdm("envoyerTdm");
-	}
-
-	if ($_POST['newAction'] == "envoyerTdm") {
-		$xml = construireTdm();
-		//enregistrerLog ('gpx2tdm', 'enregistrement d\'un tdm', $_SESSION['nomRando'].".tdm");
-		envoyerTdm($xml);
-	}
-
-	if ($_POST['newAction'] == "envoyerTdmCSV") {
-		mettreAJourSession();
-		calculerTdm();
-		//enregistrerLog ('gpx2tdm', 'envoi d\'un tdm (csv)', $_SESSION['nomRando'].".tdm");
-		$csv = construireTdmCSV();
-		envoyerTdmCSV($csv);
-	}
-	
-
-	if ($_POST['newAction'] == "imprimerTdm") {
-		mettreAJourSession();
-		calculerTdm();
-		//enregistrerLog ('gpx2tdm', 'impression d\'un tdm', $_SESSION['nomRando'].".tdm");
-//		imprimerTdm();
-		afficherTdm("imprimerTdm");
-	}
-
-	if ($_POST['newAction'] == "imprimeFicheHtml") {
-		mettreAJourSession();
-		calculerTdm();
-		//enregistrerLog ('gpx2tdm', 'impression d\'une fiche rando (html)', $_SESSION['nomRando'].".tdm");
-//		enregistrerFichier($xml);
-		afficherTdm("imprimeFicheHtml");
-	}
-
-	if ($_POST['newAction'] == "imprimeFichePdf") {
-		mettreAJourSession();
-		calculerTdm();
-		//enregistrerLog ('gpx2tdm', 'impression d\'une fiche rando (pdf)', $_SESSION['nomRando'].".tdm");
-//		enregistrerFichier($xml);
-		afficherTdm("imprimeFichePdf");
-	}
-
-	if ($_POST['newAction'] == "creerTrk") {
-		mettreAJourSession();
-		calculerTdm();
-		//enregistrerLog ('gpx2tdm', 'création d\'un gpx (_wpt_trk)', $_SESSION['nomRando'].".tdm");
-		afficherTdm("envoyerTrk");
-	}
-
-	if ($_POST['newAction'] == "envoyerTrk") {
-		$xml = construireTrk();
-		envoyerTrk($xml);
-	}
-
-	if ($_POST['newAction'] == "creerTrkLisse") {
-		mettreAJourSession();
-		calculerTdm();
-		//enregistrerLog ('gpx2tdm', 'création d\'un gpx (_wpt_trk)', $_SESSION['nomRando'].".tdm");
-		afficherTdm("envoyerTrkLisse");
-	}
-
-	if ($_POST['newAction'] == "envoyerTrkLisse") {
-		$xml = construireTrkLisse();
-		envoyerTrkLisse($xml);
-	}
-
-	if ($_POST['newAction'] == "creerWpt") {
-		mettreAJourSession();
-		calculerTdm();
-		//enregistrerLog ('gpx2tdm', 'création d\'un gpx (_wpt)', $_SESSION['nomRando'].".tdm");
-		afficherTdm("envoyerWpt");
-	}
-
-	if ($_POST['newAction'] == "envoyerWpt") {
-		$xml = construireWpt();
-		envoyerWpt($xml);
-	}
-
-	if ($_POST['newAction'] == "analyser") {
-		$xml = construireAnalyse();
-		enregistrerLog ('gpx2tdm', 'analyse d\'une trace', $_SESSION['nomRando'].".tdm");
-		envoyerAnalyse($xml);
-	}
-	
-	if ($_POST['newAction'] == "recalculer") {
-//var_dump($_SESSION); die();		
-		mettreAJourSession();
-		calculerTdm();
-		afficherTdm("rien");
-	}
-
-//var_dump($_SESSION); die();
-}
-else {
-	// cas de l'appel initial de l'application
-	header('Location: ../index.php');
-}
 
 // fin Main : action selon POST
 ////////////////////////////////////////////////////////////////////////////////
@@ -235,19 +214,30 @@ else {
 		function recalculerAltitude() {
 		// détermine les valeurs 'ele' dans $_SESSION['trk'] à l'aide du service alticodadage de l'IGN
 			foreach ($_SESSION['trk'] AS $i => $trkpt) {
-//var_dump($_SESSION['trk']);die();
 				// calcul des altitude avec Alticodage de Geoportail
 				$ptCoord[$i]['lat'] = (float) $trkpt['lat'];
 				$ptCoord[$i]['lon'] = (float) $trkpt['lon'];
 				$i++;
 			}
 			$ele = eleGeoportail($ptCoord);
-//var_dump($ele);die();
+			if ($ele===FALSE) return FALSE;
 			foreach ($ele AS $i => $uneEle) {
-				$_SESSION['trk'][$i]['ele'] = (string) $ele[$i];
+				$_SESSION['trk'][$i]['ele'] =  $ele[$i]; // pas de transtypage (string)
 			}
-			// enregistrer la trace avec altitudes corrigées : fichier pour IBP Index
+/*
+			// correction des altitudes = -99999
+			foreach ($_SESSION['trk'] as $i => $trkpt) {
+				if (!isset($trkpt['ele']) || $trkpt['ele']=="" || $trkpt['ele']<-1000 || $trkpt['ele']>9000 ) {
+					$_SESSION['trk'][$i]['ele'] = "";
+				}
+			}
+*/
+//var_dump($_SESSION['trk']);die();
+			return TRUE;
 		}
+
+			
+			// enregistrer la trace avec altitudes corrigées : fichier pour IBP Index
 		
 		
 		// initialiser $_SESSION
@@ -393,8 +383,18 @@ else {
 		// correction XML v1.1 : remplace xml version="1.1" par xml version="1.0"
 		$chaineGpx = str_replace('xml version="1.1"', 'xml version="1.0"', $chaineGpx);
 		$chaineGpx = str_replace("xml version='1.1'", "xml version='1.0'", $chaineGpx);
-
+		
+		// conversion éventuelle de la route en trace	
+		$chaineGpx = rte2trk($chaineGpx); // dans init.inc.php
+		
 		$message = "";
+/*
+//////////////////////////////////////////////////////////////////////////////////////		
+echo ("L'application a bien reçue le formulaire avec la trace suivante :<br>\n<br>\n");
+echo htmlspecialchars($chaineGpx);
+die;
+//////////////////////////////////////////////////////////////////////////////////////		
+*/
 		$gpx = simplexml_load_string($chaineGpx);
 
 		if ($gpx===false) $message = "Le fichier n'est pas un fichier gpx valide.";
@@ -402,6 +402,7 @@ else {
 			$message .= " Le tableau de marche ne peut pas être construit.";
 			alerterEtRetour($message);
 		}
+		
 
 	// contrôle de l'existence d'un seul trk
 		$nbTrk = 0;
@@ -427,15 +428,29 @@ else {
 				$i++;
 			}
 		}
-//var_dump($_SESSION['trk']); echo("\n<br>******************************************\n<br>");	
-//die();
+
 		// si demandé : recalcul des altitudes par service altimétrique de l'IGN
 		// modifie $_SESSION['trk']
-		if (isset($_POST['recalculerAltitude'])) recalculerAltitude();
-		
+		if (isset($_POST['recalculerAltitude'])) $reponseRecalculerAltitude = recalculerAltitude();
+		else $reponseRecalculerAltitude = TRUE;
+
 		// remplacer chaque ele=="" par ele la  + proche !=""
 		$elePrec = "";
+//var_dump($_SESSION['trk']);die();
 		foreach ($_SESSION['trk'] as $i => $trkpt) {
+			// absence d'altitude des points de trace
+			if ($trkpt['ele']==="") {
+				if (!$reponseRecalculerAltitude) {
+					echo("#436 *{$trkpt['ele']}*  Le Service Alticodage de Géoportail est momentanément indisponible. Le recalcul des altitudes n'a pas été effectué. La trace ne contient pas les altitudes des points de trace, elle est donc inutilisable.");
+//					var_dump($gpx->trk);
+					die;
+				}
+				else {
+					echo("#441 *{$trkpt['ele']} de rang $i* La trace ne contient pas les altitudes des points de trace, elle est donc inutilisable.");
+//					var_dump($gpx->trk);
+					die;
+				}
+			}
 			if (is_numeric($trkpt['ele'])) $elePrec = $trkpt['ele'];
 			else {
 				if (is_numeric($elePrec)) $_SESSION['trk'][$i]['ele'] = $elePrec;
@@ -444,11 +459,26 @@ else {
 					if (isset($_SESSION['trk'][$j])) {
 						while ($_SESSION['trk'][$j]['ele']=="") {
 							$j++;
-							if (!isset($_SESSION['trk'][$j])) die("La trace ne contient pas d'attribut ele, elle est donc inutilisable.");
+							if (!isset($_SESSION['trk'][$j]) && !$reponseRecalculerAltitude) {
+								echo("#455 *{$trkpt['ele']}*  Le Service Alticodage de Géoportail est momentanément indisponible. Le recalcul des altitudes n'a pas été effectué. La trace ne contient pas les altitudes des points de trace, elle est donc inutilisable.");
+//								var_dump($gpx->trk);
+								die;
+							}
+							else {
+								if (!isset($_SESSION['trk'][$j])) {
+									echo("#461 *{$trkpt['ele']}*  La trace ne contient pas les altitudes des points de trace, elle est donc inutilisable.");
+									var_dump($gpx->trk);
+									die;
+								}
+							}
 						}
 						$_SESSION['trk'][$i]['ele'] = $_SESSION['trk'][$j]['ele'];
 					}
-					else die("La trace ne contient pas d'attribut ele, elle est donc inutilisable.");
+					else {
+						echo("#470 *{$trkpt['ele']}*  La trace ne contient pas les altitudes des points de trace, elle est donc inutilisable.");
+						var_dump($gpx->trk);
+						die;
+					}	
 				}
 			}
 		}
@@ -670,7 +700,7 @@ else {
 		$_SESSION['distanceLissage'] = DISTANCELISSAGE_DEF;
 		$_SESSION['seuil'] = SEUIL_DEF;
 		
-		
+return $reponseRecalculerAltitude;		
 	}
 	// fin initialiserTdm()
 	////////////////////////////////////////////////////////////////////////////////
@@ -1583,6 +1613,9 @@ else {
 			onLoad = " <?php if ($_POST['newAction'] == "creer" || $_POST['newAction'] == "charger") echo("$('#inputDate').trigger( 'click' );"); //click() ?>  initialiserGraphiqueOngletEtReactiverSession('<?php echo($_SESSION['idAffiche']); ?>', '<?php echo $GLOBALS['lastUpdateSession']*1000;?>');
 
 			<?php
+				if (!$action) { // echec du recalcul des altitudes
+					echo("alert('Attention ! Le Service Alticodage de Géoportail est momentanément indisponible. Le recalcul des altitudes n\'a pas été effectué.')");
+				}
 				// initialiser $xml
 				$xml = "";
 
@@ -3392,7 +3425,10 @@ OpenRoute Service propose un itinéraire sans péage (et un intinéraire avec p�
 	</head>
 	<body style="font-family:sans-serif;">
 		<p>Analyse de la trace : '.$_SESSION['nomRando'].'</p>
-		<table style="width: 100%; text-align: center;" border="1">
+		<table style="widthvar_dump($_POST);
+var_dump($_FILES);
+die();
+: 100%; text-align: center;" border="1">
 			<tbody>
 			<tr>
 				<td style="text-align: center;" colspan="5" rowspan="1">points de
