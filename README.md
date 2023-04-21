@@ -21,8 +21,8 @@ Elle utilise les bibliothèques :
 * l'extension Géoportail pour Leaflet
 * jQuery
 et les API :
-* OpenRoute Service : pour le calcul des itinéraires routiers (en option) : https://www.ibpindex.com/index.php/fr/ibp-services-fr/services
-* IBP Index pour le calcul de l'indice IBP : https://openrouteservice.org/
+* OpenRoute Service : pour le calcul des itinéraires routiers (en option) : https://openrouteservice.org/ 
+* IBP Index pour le calcul de l'indice IBP : https://www.ibpindex.com/index.php/fr/ibp-services-fr/services
 	
 Le paramétrage de l'application se fait en modifiant le fichier inc/config.inc.php_MODELE que l'on doit renommer en config.inc.php après modification.
 
